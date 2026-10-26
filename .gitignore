@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment and Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+
+# Large archives and packages
+blockchain.zip
+*.zip
+*.tar.gz
+*.rar
+
+# Hardhat & Smart Contracts compilation artifacts
+artifacts/
+cache/
+typechain-types/
+
+# Database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backend/prisma/dev.db
+
+# Production & Build outputs
+dist/
+build/
+coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

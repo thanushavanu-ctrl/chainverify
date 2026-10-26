@@ -1,0 +1,73 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  passwordHash    String
+  fullName        String
+  role            String           @default("USER") // USER | ADMIN
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  identityProfile IdentityProfile?
+  auditLogs       AuditLog[]
+  sessions        Session[]
+}
+
+model IdentityProfile {
+  id                    String                @id @default(uuid())
+  userId                String                @unique
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pseudonymousId        String                @unique // e.g. "did:chainverify:a8f9..."
+  commitmentHash        String                // Keccak-256 commitment hash
+  status                String                @default("NONE") // NONE | PENDING | VERIFIED | REJECTED | REVOKED
+  documentType          String?               // Simulated document type e.g., "PASSPORT"
+  documentHash          String?               // SHA-256 hash of simulated identity document
+  statusReason          String?
+  registeredTxHash      String?
+  registeredBlockNumber Int?
+  verifiedTxHash        String?
+  verifiedBlockNumber   Int?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  verificationRequests  VerificationRequest[]
+}
+
+model VerificationRequest {
+  id                String          @id @default(uuid())
+  identityProfileId String
+  identityProfile   IdentityProfile @relation(fields: [identityProfileId], references: [id], onDelete: Cascade)
+  status            String          @default("PENDING") // PENDING | APPROVED | REJECTED | REVOKED
+  submittedAt       DateTime        @default(now())
+  reviewedAt        DateTime?
+  reviewedBy        String?
+  reviewerNotes     String?
+  txHash            String?
+  blockNumber       Int?
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  details   String
+  ipAddress String?
+  txHash    String?
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
